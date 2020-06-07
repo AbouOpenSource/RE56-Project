@@ -846,7 +846,6 @@
 		else carto=false;
 	}
 	function cartepuissance(){
-		testFunction();
 		vider();
 		seuil=parseInt(document.getElementById('seuil').value);
 		coinSudlat=coinSud.lat;
@@ -888,6 +887,7 @@
 					}
 					else suminterf+=Math.pow(10,puissance[a][i][j]/10.0);
 				}
+				//console.log('je suis la ');
 				CIR=max/suminterf;
 				if(CIR>1.5) continue;
 				else if(CIR>1) {r=1;v=69;b=250;}
@@ -927,9 +927,33 @@
 		if(modeclick==3) {modeclick=2;placeBat2(e.latlng);}
 	}
 	
-
-
-
-	function testFunction(){
-		console.log(antennes);
+	function cartehandover(){
+		vider();
+		seuil=parseInt(document.getElementById('seuil').value);
+		console.log("cartehandover");
+		/*Here the code for the handover*/ 	
+		//for(i=0;i<hautZone*pdm;i++){
+			//for(j=0;j<largZone*pdm;j++){
+				//for(var a=0;a<nbantennes;a++){
+					/*if(Math.pow(10,puissance[a][i][j]/10.0)>max) {
+						if(max!=-1)	suminterf+=max;
+						max=Math.pow(10,puissance[a][i][j]/10.0);
+					}
+					else suminterf+=Math.pow(10,puissance[a][i][j]/10.0);*/
+					//console.log(puissance[0][1][1]);
+					//console.log(puissance[1][1][1]);
+					//console.log(puissance[2][1][1]);
+					console.log(antennes[0].location);
+					drawLine(antennes[0],antennes[1]);
+					//}
+				
+		//	}		
+	//	}
+	}	
+	function drawLine(coord1,coord2){
+			var line = L.polygon([
+									[coord1.location.lat, coord1.location.lng],
+									[coord2.location.lat, coord2.location.lng],]
+			,).addTo(mymap);
+		 bins.push(line);
 	}
