@@ -943,7 +943,7 @@
 					//console.log(puissance[0][1][1]);
 					//console.log(puissance[1][1][1]);
 					//console.log(puissance[2][1][1]);
-					console.log(antennes[0].location);
+					console.log(puissance[0]);
 					drawLine(antennes[0],antennes[1]);
 					//}
 				
@@ -957,3 +957,55 @@
 			,).addTo(mymap);
 		 bins.push(line);
 	}
+
+	
+	/**
+	 * @description
+	 *  This type of interference is the due to frequency reuse, i.e. several cells use the same set of frequency.
+		These cells are called co-channel cells.
+		Co-channel interference cannot be combated by increasing the power of the transmitter. This is because an increase in carrier transmit power increases the interference to neighboring co-channel cells.
+		To reduce co-channel interference, co-channel cells must be physically separated by a minimum distance to provide sufficient isolation due to propagation or reduce the footprint of the cell.
+		Some factors other than reuse distance that influence co-channel interference are antenna type, directionality, height, site position etc.
+	 * @param {*} powerExceptedSignal the power expected from the right anttenna 
+	 * @param {*} anotherpower 
+	 * @param {*} setOfFreq1 
+	 * @param {*} setOfFreq2 
+	 */
+	
+	
+	function calculateCoChannelInterference(powerExceptedSignal, anotherpower,setOfFreq1, setOfFreq2){
+	if(findCommonElement(setOfFreq1,setOfFreq2)){
+			var N = 0.1;
+			return powerExceptedSignal/( anotherpower + N);
+		}
+		return 0;	
+	}
+
+	function findCommonElement(array1, array2) {       
+		for(let i = 0; i < array1.length; i++) { 
+			  
+			for(let j = 0; j < array2.length; j++) { 
+				  		if(array1[i] === array2[j]) {   
+					return true; 
+				} 
+			} 
+		} 
+		return false;  
+	} 
+
+	
+	function goodConditionOfHandover(){
+
+
+
+	}
+
+
+
+	/**
+	 * @good level of power in 4g
+	 * greater than -82 dbm and -96 dbm
+	 *  
+	 * 
+	 * 
+	 */
