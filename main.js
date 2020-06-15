@@ -249,6 +249,14 @@
 			}
 			objpower=document.getElementById('power');
 			antenne.puissance = parseInt(objpower.value);
+			
+			
+			freq1 = document.getElementById('frequence1').value;
+			freq2 = document.getElementById('frequence2').value;
+			freq3 = document.getElementById('frequence3').value;
+			freq4 = document.getElementById('frequence4').value;   
+			antenne.frequencies = [freq1, freq2, freq3, freq4];
+
 		}
 		//it is a restored antenna from stored data 
 		else {
@@ -258,6 +266,15 @@
 				antenne.azimut=-1;
 				antenne.tilt=tilt;
 				antenne.puissance=power;
+
+				freq1 = document.getElementById('frequence1').value;
+				freq2 = document.getElementById('frequence2').value;
+				freq3 = document.getElementById('frequence3').value;
+				freq4 = document.getElementById('frequence4').value;   
+				antenne.frequencies = [freq1, freq2, freq3, freq4];
+	
+				
+
 			}
 			else{
 				omni=false;
@@ -265,6 +282,18 @@
 				antenne.azimut=azimut;
 				antenne.tilt=tilt;
 				antenne.puissance=power;
+				/**
+				 * @module addFrequency
+				 */
+
+				freq1 = document.getElementById('frequence1').value;
+				freq2 = document.getElementById('frequence2').value;
+				freq3 = document.getElementById('frequence3').value;
+				freq4 = document.getElementById('frequence4').value;   
+				antenne.frequencies = [freq1, freq2, freq3, freq4];
+	
+
+
 			}
 		}
 		//display the antenna 
@@ -340,6 +369,8 @@
 		document.getElementById('cartecellule').disabled='';
 		document.getElementById('carteresidence').disabled='';
 		document.getElementById('propag').disable='';
+		document.getElementById('cartelink').disabled='';
+		
 	}
 
 	function GetColor(p) {
@@ -720,6 +751,8 @@
 		document.getElementById('cartehandover').disabled='disabled';
 		document.getElementById('cartecellule').disabled='disabled';
 		document.getElementById('carteresidence').disabled='disabled';
+		document.getElementById('cartelink').disabled='disabled';
+		
 	}
 	var batiments=[];
 	var axes=[];
@@ -784,6 +817,8 @@
 		document.getElementById('cartehandover').disabled='disabled';
 		document.getElementById('cartecellule').disabled='disabled';
 		document.getElementById('carteresidence').disabled='disabled';
+		document.getElementById('cartelink').disabled='disabled';
+		
 	}
 
 	
@@ -838,6 +873,9 @@
 		document.getElementById('cartehandover').disabled='disabled';
 		document.getElementById('cartecellule').disabled='disabled';
 		document.getElementById('carteresidence').disabled='disabled';
+		document.getElementById('cartelink').disabled='disabled';
+		
+		
 	}
 	function choixcarto(){
 		rep=confirm("Transparent pour les zones hors seuils ?");
@@ -950,14 +988,61 @@
 		//	}		
 	//	}
 	}	
-	function drawLine(coord1,coord2){
-			var line = L.polygon([
-									[coord1.location.lat, coord1.location.lng],
-									[coord2.location.lat, coord2.location.lng],]
-			,).addTo(mymap);
-		 bins.push(line);
+	function drawLine(coord1, coord2, countDangerousSquare){
+		console.log(countDangerousSquare);
+		var colorData='';	
+		if(countDangerousSquare>=3000 && countDangerousSquare<=5000){
+			colorData='green';
+			//faile 
+		}else if(countDangerousSquare > 5000 && countDangerousSquare <= 10000){
+			colorData='blue';
+			//moyen
+		}else if(countDangerousSquare > 10000 && countDangerousSquare <=20000){
+			colorData='orange';
+			//pas bon
+		}else{
+			colorData = 'red';
+			//critique
+		}
+
+		var line = L.polygon(
+			[
+				[coord1.lat, coord1.lng],
+				[coord2.lat, coord2.lng],
+			]
+			,{color: colorData});
+		//line.setStyle({fillColor: '#ff0000'});
+		line.addTo(mymap);
+		bins.push(line);
 	}
 
+	function carteLink(){
+		var numberAreaTolored = 3000;
+		var countDangerousSquare =0;
+		var seuilTolered= 1.25;
+		
+		for (var i=0; i<nbantennes-1;++i){
+			for (var j=i+1; j < nbantennes;j++){
+				if(checkCoChannel(antennes[i].frequencies, antennes[j].frequencies)){
+					for(var ind=0 ;ind<hautZone*pdm; ind++){
+							for(jin=0;jin<largZone*pdm;jin++){		
+								if((puissance[i][ind][jin]/puissance[j][ind][jin])>seuilTolered){
+									countDangerousSquare++;
+								}
+							}
+					
+					}
+					if(countDangerousSquare>numberAreaTolored){
+						 drawLine(antennes[i].location,antennes[j].location,countDangerousSquare);
+					}
+			
+				
+			}else if(adjacentCochannel()){
+				
+			};
+			}
+		}
+	}
 	
 	/**
 	 * @description
@@ -972,30 +1057,45 @@
 	 * @param {*} setOfFreq2 
 	 */
 	
-	
-	function calculateCoChannelInterference(powerExceptedSignal, anotherpower,setOfFreq1, setOfFreq2){
-	if(findCommonElement(setOfFreq1,setOfFreq2)){
-			var N = 0.1;
-			return powerExceptedSignal/( anotherpower + N);
-		}
-		return 0;	
-	}
-
-	function findCommonElement(array1, array2) {       
-		for(let i = 0; i < array1.length; i++) { 
+	function checkCoChannel(setOfFreq1, setOfFreq2){
+		for(let i = 0; i < setOfFreq1.length; i++) { 
 			  
-			for(let j = 0; j < array2.length; j++) { 
-				  		if(array1[i] === array2[j]) {   
+			for(let j = 0; j < setOfFreq2.length; j++) { 
+				if(setOfFreq1[i] === setOfFreq2[j]) {   
 					return true; 
 				} 
 			} 
 		} 
 		return false;  
+		
+	}
+	
+	function calculateCoChannelInterferenceDegree(indexAntenne1, indexAntenne2){
+		var seuil= 0.5;
+		var count =0;	
+		console.log(puissance[indexAntenne1]);
+		console.log(puissance[indexAntenne2]);
+
+		/*for(i=0;i<hautZone*pdm;i++){
+				for(j=0;j<largZone*pdm;j++){		
+					
+					if((puissance[indexAntenne1][i][j]/puissance[indexAntenne2][i][j])>seuil){
+						console.log(" rapport "+count+(puissance[indexAntenne1]/puissance[indexAntenne2])+" \n");
+						count++;
+					}
+			}
+		*/
+		
+	//}
+	}
+	function findCommonElement(array1, array2) {       
+		
 	} 
 
 	
-	function goodConditionOfHandover(){
+	function interferenceLink(puissance){
 
+		
 
 
 	}
@@ -1009,3 +1109,17 @@
 	 * 
 	 * 
 	 */
+
+	 /**
+	  * max tolerance of interference for gsm is 9 db
+	  * 
+	  */
+
+
+	  /**
+	   * 3G 
+	   * - 70dbM a -89 dbM est bon 
+	   * -90 a -101 dbM est moyen
+	   * -102 dbm a -120 dbm est tres mauvais   
+	   * 
+	   */
