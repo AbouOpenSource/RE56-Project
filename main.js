@@ -1037,10 +1037,58 @@
 					}
 			
 				
-			}else if(adjacentCochannel()){
+				}
+				else if(adjacentCochannel(antennes[i].frequencies, antennes[j].frequencies) !== -1)
+				{
+					var ordre =adjacentCochannel(antennes[i].frequencies, antennes[j].frequencies);
+					if(ordre ===1){
+						var valeurASoustraire = -10
+						for(var ind=0 ;ind<hautZone*pdm; ind++){
+							for(jin=0;jin<largZone*pdm;jin++){		
+								if((puissance[i][ind][jin]/(puissance[j][ind][jin] + valeurASoustraire))>seuilTolered){
+									countDangerousSquare++;
+								}
+							}
+						}
+						if(countDangerousSquare>numberAreaTolored){
+							drawLine(antennes[i].location,antennes[j].location,countDangerousSquare);
+						}
+					
+						}
+					else if(ordre === 2){
+						var valeurASoustraire = -19
+						for(var ind=0 ;ind<hautZone*pdm; ind++){
+							for(jin=0;jin<largZone*pdm;jin++){		
+								if((puissance[i][ind][jin]/(puissance[j][ind][jin] +valeurASoustraire))>seuilTolered){
+									countDangerousSquare++;
+								}
+							}
+										
+						}
+						if(countDangerousSquare>numberAreaTolored){
+							drawLine(antennes[i].location,antennes[j].location,countDangerousSquare);
+						}
 				
-			};
-			}
+					}else
+					{
+						var valeurASoustraire = -30
+						for(var ind=0 ;ind<hautZone*pdm; ind++){
+							for(jin=0;jin<largZone*pdm;jin++){		
+								if((puissance[i][ind][jin]/(puissance[j][ind][jin] +valeurASoustraire))>seuilTolered){
+									countDangerousSquare++;
+								}
+							}			
+						}
+						if(countDangerousSquare>numberAreaTolored){
+							drawLine(antennes[i].location,antennes[j].location,countDangerousSquare);
+						}
+				
+					}
+
+
+
+					};
+				}
 		}
 	}
 	
@@ -1069,38 +1117,25 @@
 		return false;  
 		
 	}
-	
-	function calculateCoChannelInterferenceDegree(indexAntenne1, indexAntenne2){
-		var seuil= 0.5;
-		var count =0;	
-		console.log(puissance[indexAntenne1]);
-		console.log(puissance[indexAntenne2]);
-
-		/*for(i=0;i<hautZone*pdm;i++){
-				for(j=0;j<largZone*pdm;j++){		
-					
-					if((puissance[indexAntenne1][i][j]/puissance[indexAntenne2][i][j])>seuil){
-						console.log(" rapport "+count+(puissance[indexAntenne1]/puissance[indexAntenne2])+" \n");
-						count++;
-					}
-			}
-		*/
+	function checkAdjacentChannel(setOfFreq1, setOfFreq2){
+		for(let i = 0; i < setOfFreq1.length; i++) { 
+			  
+			for(let j = 0; j < setOfFreq2.length; j++) { 
+				if(Math.abs(setOfFreq1[i]-setOfFreq2[j])< 10 )
+				{   
+					return 1; 
+				} else if (Math.abs(setOfFreq1[i]-setOfFreq2[j])< 20 ){
+					return 2;
+				} else if(Math.abs(setOfFreq1[i]-setOfFreq2[j])< 40){
+					return 3;
+				}else{
+					return -1
+				}
+			} 
+		} 
+		return false;  
 		
-	//}
 	}
-	function findCommonElement(array1, array2) {       
-		
-	} 
-
-	
-	function interferenceLink(puissance){
-
-		
-
-
-	}
-
-
 
 	/**
 	 * @good level of power in 4g
