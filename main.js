@@ -965,29 +965,61 @@
 		if(modeclick==3) {modeclick=2;placeBat2(e.latlng);}
 	}
 	
+	/**
+	 * for GSM power level
+	 *   >= -70 dBm 	Excellent 	Strong signal with maximum data speeds
+		-70 dBm to -85 dBm 	Good 	Strong signal with good data speeds
+		-86 dBm to -100 dBm 	Fair 	Fair but useful, fast and reliable data speeds may be attained, but marginal data with drop-outs is possible
+		< -100 dBm 	Poor 	Performance will drop drastically
+		-110 dBm 	No signal 	Disconnection 
+	 */
+
+
+
 	function cartehandover(){
 		vider();
 		seuil=parseInt(document.getElementById('seuil').value);
 		console.log("cartehandover");
-		/*Here the code for the handover*/ 	
-		//for(i=0;i<hautZone*pdm;i++){
-			//for(j=0;j<largZone*pdm;j++){
-				//for(var a=0;a<nbantennes;a++){
-					/*if(Math.pow(10,puissance[a][i][j]/10.0)>max) {
-						if(max!=-1)	suminterf+=max;
-						max=Math.pow(10,puissance[a][i][j]/10.0);
-					}
-					else suminterf+=Math.pow(10,puissance[a][i][j]/10.0);*/
-					//console.log(puissance[0][1][1]);
-					//console.log(puissance[1][1][1]);
-					//console.log(puissance[2][1][1]);
-					console.log(puissance[0]);
-					drawLine(antennes[0],antennes[1]);
-					//}
+		var tecno = document.getElementById('techno').value ;
+		console.log(tecno);
+		var count =0;
 				
-		//	}		
-	//	}
+		for(i=0;i<hautZone*pdm;i++){
+			for(j=0;j<largZone*pdm;j++){
+				for(var a=0;a<nbantennes;a++){
+					
+				if(puissance[a][i][j]< -85)
+						count++;			 
+				}
+				colorBin(count,i,j);
+				count = 0;
+			}
+				
+					
+		}
 	}	
+function colorBin(count,i,j){
+
+	if(count >= 3) couleur ='red'
+	else if(count <= 1) couleur ='green'
+	else couleur ='blue';
+	
+	console.log("The color is : "+couleur);
+	plat=coinSud.lat+i*latBin;
+	plng=coinSud.lng+j*lngBin;
+	
+	var bin = L.polygon([
+		[plat, plng],
+		[plat+latBin, plng],
+		[plat+latBin, plng+lngBin],
+		[plat, plng+lngBin]
+		],{fillColor: couleur,
+			fillOpacity: 1,
+			color : 'transparent'}).addTo(mymap);
+	bins.push(bin);
+
+}
+
 	function drawLine(coord1, coord2, countDangerousSquare){
 		console.log(countDangerousSquare);
 		var colorData='';	
@@ -1099,8 +1131,6 @@
 		Co-channel interference cannot be combated by increasing the power of the transmitter. This is because an increase in carrier transmit power increases the interference to neighboring co-channel cells.
 		To reduce co-channel interference, co-channel cells must be physically separated by a minimum distance to provide sufficient isolation due to propagation or reduce the footprint of the cell.
 		Some factors other than reuse distance that influence co-channel interference are antenna type, directionality, height, site position etc.
-	 * @param {*} powerExceptedSignal the power expected from the right anttenna 
-	 * @param {*} anotherpower 
 	 * @param {*} setOfFreq1 
 	 * @param {*} setOfFreq2 
 	 */
@@ -1158,3 +1188,6 @@
 	   * -102 dbm a -120 dbm est tres mauvais   
 	   * 
 	   */
+
+
+	   
